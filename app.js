@@ -20,8 +20,8 @@ wss.on("connection", function connection(ws) {
   });
 });
 
-app.get("/login", (req, res) => {
-  res.send("hello world!");
-});
+// app.get("/login", (req, res) => {
+//   res.send("hello world!");
+// });
 
-app.listen(3333);
+// app.listen(3333);
