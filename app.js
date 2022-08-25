@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
-const Koa = require("koa");
-const app = new Koa();
+const express = require("express");
+const app = new express();
 
 // const wss = new WebSocket.Server({ port: 8088 }); // websocket的端口
 
@@ -20,8 +20,9 @@ const app = new Koa();
 //   });
 // });
 
-app.use(async (ctx) => {
-  ctx.body = "Hello Vercel";
+app.get("/login", (req, res) => {
+  console.log(1231);
+  res.send("hello world!");
 });
 
-app.listen(3001);
+app.listen(3333);
