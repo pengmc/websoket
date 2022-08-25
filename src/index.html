@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>聊天室</title>
+    <style>
+      li {
+        list-style: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>聊天室</h1>
+    <input type="text" id="result" placeholder="" />
+    <button onclick="sbumit()">提交</button>
+
+    <ul id="list"></ul>
+    <script>
+      var result = document.querySelector("#result");
+      var list = document.querySelector("#list");
+
+      // 打开一个 web socket  这里端口号和上面监听的需一致
+      var ws = new WebSocket("ws://192.168.102.58:3000/");
+
+      console.log(ws);
+
+      // Web Socket 已连接上，使用 send() 方法发送数据
+      ws.onopen = function () {
+        // 这里用一个延时器模拟事件
+        //  setInterval(function() {
+        //      ws.send('客户端消息');
+        //  },2000);
+        // ws.send("欢迎加入聊天室")
+      };
+      // 这里接受服务器端发过来的消息
+      ws.onmessage = function (e) {
+        console.log(e.data);
+        if (e.data) {
+          var data = JSON.parse(e.data);
+          var time = data.time;
+          var msg = data.msg;
+          list.innerHTML += `<li>时间：${time}</li><li>消息：${msg}</li></br>`;
+        }
+      };
+
+      ws.onclose = function (res) {
+        console.log(res);
+      };
+
+      document.onkeydown = function (e) {
+        if (e.keyCode == "13") {
+          sbumit();
+        }
+      };
+
+      function sbumit() {
+        ws.send(1231);
+        result.value = "";
+      }
+    </script>
+  </body>
+</html>
