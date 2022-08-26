@@ -24,7 +24,7 @@ const { log } = require("console");
 //1.  dest对应上传的文件的目录地址。
 //2.  upload.single的值“logo”对应前端name中的“logo”。
 
-// const upload = multer({ dest: "./public/" });
+const files = multer({ dest: "./public/" });
 
 let filename = "";
 
