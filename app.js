@@ -3,28 +3,94 @@ const express = require("express");
 const app = new express();
 const multer = require("multer");
 const path = require("path");
-const { log } = require("console");
-// const wss = new WebSocket.Server({ port: 8088 }); // websocket的端口
 
-// wss.on("connection", function connection(ws) {
-//   ws.send("ws");
-//   ws.on("message", function incoming(message) {
-//     console.log(message.toString());
-//     // 广播给所有用户
-//     wss.clients.forEach(function each(client) {
-//       if (client.readyState === WebSocket.OPEN) {
-//         const obj = {};
-//         obj.date = new Date();
-//         obj.msg = message.toString();
-//         client.send(JSON.stringify(obj));
-//       }
-//     });
-//   });
-// });
+const NeDB = require("nedb");
+// 创建nedb数据库实例
+const db = new NeDB({
+  filename: "./user.db",
+  autoload: true,
+});
+
+db.remove({}, { multi: true }, function (err, result) {});
+
+// db.insert(
+//   {
+//     name: "pmc",
+//     age: 18,
+//   },
+//   (err, result) => {
+//     console.log(result);
+//   }
+// );
+
+// db.find(
+//   {
+//     name: "pmc",
+//   },
+//   (err, result) => {
+//     console.log(result);
+//   }
+// );
+
+// db.update(
+//   {
+//     name: "pmc",
+//   },
+//   {
+//     $set: {
+//       age: 2,
+//     },
+//   },
+//   (err, result) => {
+//     console.log(result);
+//   }
+// );
+
+// 开启ws服务器
+const wss = new WebSocket.Server({ port: 8088 }); // websocket的端口
+
+//监听链接
+wss.on("connection", function connection(ws) {
+  ws.on("message", function incoming(message) {
+    if (message.toString() == "open") {
+      console.log(12312);
+      db.find({}, (err, res) => {
+        ws.send(JSON.stringify(res));
+      });
+      return;
+    }
+    let data = JSON.parse(message);
+    console.log(data);
+    // 广播给所有用户
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN) {
+        const obj = {};
+        obj.date = new Date();
+        obj.msg = data.msg;
+        obj.name = data.name;
+        db.insert(obj, (err, res) => {});
+
+        db.find({}, (err, res) => {
+          client.send(JSON.stringify(res));
+        });
+      }
+    });
+
+    ws.on("error", (err) => {
+      console.log(err);
+    });
+
+    // 断开连接
+    ws.on("close", function () {
+      console.log("close");
+    });
+  });
+});
+
 //1.  dest对应上传的文件的目录地址。
 //2.  upload.single的值“logo”对应前端name中的“logo”。
 
-const files = multer({ dest: "./public/" });
+multer({ dest: "./public/" });
 
 let filename = "";
 
@@ -50,8 +116,8 @@ const upload = multer({
 
 // 这里使用连续中间件，upload.single('img')表示解析单个文件夹，且key值为 ‘img’,
 app.post("/upload", upload.single("file"), (req, res) => {
-  console.log(req.headers.host);
-  res.send(`http://${req.headers.host}/img/${filename}`);
+  console.log(JSON.stringify(req.headers.origin));
+  res.send(`http://192.168.102.58:3333/img/${filename}`);
 });
 
 // 显示静态文件
